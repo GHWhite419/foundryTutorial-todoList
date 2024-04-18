@@ -10,6 +10,20 @@ class ToDoList {
   };
 }
 
+Hooks.on("renderPlayerList", (playerList, html) => {
+  const loggedInUserListItem = html.find(`[data-user-id="${game.userId}"]`);
+
+  const tooltip = game.i18n.localize("TODO-LIST.button-title");
+
+  html.on("click", ".todo-list-icon-button", (event) => {
+    console.log("Button clicked");
+  });
+
+  loggedInUserListItem.append(
+    `<button type='button' class='todo-list-icon-button flex0' title='${tooltip}'><i class='fas fa-tasks'></i> </button>`
+  );
+});
+
 /**
  * A single ToDo in our list of ToDos.
  * @typedef {Object} ToDo

@@ -1,0 +1,17 @@
+.todo-list-icon-button {
+    background: transparent;
+    padding: 0;
+    color: white;
+    line-height: normal;
+    border: 0;
+    align-self: center;
+  }
+  
+  .todo-list-icon-button > i {
+    margin-right: 0;
+  }
+  
+  .todo-list-icon-button:hover, .todo-list-icon-button:focus {
+    box-shadow: none;
+    text-shadow: 0 0 5px red;
+  }
