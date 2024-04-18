@@ -15,3 +15,14 @@
     box-shadow: none;
     text-shadow: 0 0 5px red;
   }
+
+  .todo-list {
+    padding: 0;
+    margin-top: 0;
+    gap: 1em;
+  }
+  
+  .todo-list > li {
+    align-items: center;
+    gap: 0.5em;
+  }

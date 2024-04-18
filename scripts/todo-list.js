@@ -10,6 +10,15 @@ class ToDoList {
   };
 }
 
+/**
+ * A single ToDo in our list of ToDos.
+ * @typedef {Object} ToDo
+ * @property {string} id - A unique ID to identify this ToDo.
+ * @property {string} label - The text of the ToDo.
+ * @property {boolean} isDone - Marks whether the ToDo is done.
+ * @property {string} userId - The user who owns this ToDo.
+ */
+
 Hooks.on("renderPlayerList", (playerList, html) => {
   const loggedInUserListItem = html.find(`[data-user-id="${game.userId}"]`);
 
@@ -23,15 +32,6 @@ Hooks.on("renderPlayerList", (playerList, html) => {
     `<button type='button' class='todo-list-icon-button flex0' title='${tooltip}'><i class='fas fa-tasks'></i> </button>`
   );
 });
-
-/**
- * A single ToDo in our list of ToDos.
- * @typedef {Object} ToDo
- * @property {string} id - A unique ID to identify this ToDo.
- * @property {string} label - The text of the ToDo.
- * @property {boolean} isDone - Marks whether the ToDo is done.
- * @property {string} userId - The user who owns this ToDo.
- */
 
 class ToDoListData {
   static getToDosForUser(userId) {
@@ -124,5 +124,28 @@ class ToDoListData {
     return game.users
       .get(userId)
       ?.setFlag(ToDoList.ID, ToDoList.FLAGS.TODOS, updateData);
+  }
+}
+
+class ToDoListConfig extends FormApplication {
+  static get defaultOptions() {
+    const defaults = super.defaultOptions;
+
+    const overrides = {
+      height: "auto",
+      id: "todo-list",
+      template: ToDoList.TEMPLATES.TODOLIST,
+      title: "To Do List",
+      userId: game.userId,
+    };
+
+    const mergedOptions = foundry.utils.mergeObject(defaults, overrides);
+
+    return mergedOptions;
+  }
+  getData(options) {
+    return {
+        todos: ToDoListData.getToDosForUser(options.userId)
+    }
   }
 }

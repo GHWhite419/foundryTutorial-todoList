@@ -1,5 +1,8 @@
 {
   "TODO-LIST": {
-    "button-title": "Open To-Do List"
+    "button-title": "Open To-Do List",
+    "add-todo": "Add To-Do",
+    "delete-todo": "Delete To-Do",
+    "mark-done": "Mark Done"
   }
 }
