@@ -8,6 +8,10 @@ class ToDoList {
   static TEMPLATES = {
     TODOLIST: `modules/${this.ID}/templates/todo-list.hbs`,
   };
+
+  static initialize() {
+    this.toDoListConfig = new ToDoListConfig();
+  }
 }
 
 /**
@@ -25,12 +29,19 @@ Hooks.on("renderPlayerList", (playerList, html) => {
   const tooltip = game.i18n.localize("TODO-LIST.button-title");
 
   html.on("click", ".todo-list-icon-button", (event) => {
-    console.log("Button clicked");
+    const userId = $(event.currentTarget)
+      .parents("[data-user-id]")
+      ?.data()?.userId;
+    ToDoList.toDoListConfig.render(true, { userId });
   });
 
   loggedInUserListItem.append(
     `<button type='button' class='todo-list-icon-button flex0' title='${tooltip}'><i class='fas fa-tasks'></i> </button>`
   );
+});
+
+Hooks.once("init", () => {
+  ToDoList.initialize();
 });
 
 class ToDoListData {
@@ -137,6 +148,8 @@ class ToDoListConfig extends FormApplication {
       template: ToDoList.TEMPLATES.TODOLIST,
       title: "To Do List",
       userId: game.userId,
+      closeOnSubmit: false,
+      submitOnChange: true,
     };
 
     const mergedOptions = foundry.utils.mergeObject(defaults, overrides);
@@ -145,7 +158,46 @@ class ToDoListConfig extends FormApplication {
   }
   getData(options) {
     return {
-        todos: ToDoListData.getToDosForUser(options.userId)
+      todos: ToDoListData.getToDosForUser(options.userId),
+    };
+  }
+
+  async _updateObject(event, formData) {
+    const expandedData = foundry.utils.expandObject(formData);
+
+    await ToDoListData.updateUserToDos(this.options.userId, expandedData);
+
+    this.render();
+  }
+
+  activateListeners(html) {
+    super.activateListeners(html);
+
+    html.on("click", "[data-action]", this._handleButtonClick.bind(this));
+  }
+
+  async _handleButtonClick(event) {
+    const clickedElement = $(event.currentTarget);
+    const action = clickedElement.data().action;
+    const toDoId = clickedElement.parents("[data-todo-id]")?.data()?.todoId;
+
+    console.log("Button clicked!", { this: this, action, toDoId });
+
+    switch (action) {
+      case "create": {
+        await ToDoListData.createToDo(this.options.userId);
+        this.render();
+        break;
+      }
+
+      case "delete": {
+        await ToDoListData.deleteToDo(toDoId);
+        this.render();
+        break;
+      }
+
+      default:
+        console.log("Invalid action detected", action);
     }
   }
 }
