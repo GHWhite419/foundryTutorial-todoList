@@ -11,7 +11,20 @@ class ToDoList {
 
   static initialize() {
     this.toDoListConfig = new ToDoListConfig();
+    game.settings.register(this.ID, this.SETTINGS.INJECT_BUTTON, {
+      name: `TODO-LIST.settings.${this.SETTINGS.INJECT_BUTTON}.Name`,
+      default: true,
+      type: Boolean,
+      scope: "client",
+      config: true,
+      hint: `TODO-LIST.settings.${this.SETTINGS.INJECT_BUTTON}.Hint`,
+      onChange: () => ui.players.render()
+    });
   }
+
+  static SETTINGS = {
+    INJECT_BUTTON: "inject-button",
+  };
 }
 
 /**
@@ -24,6 +37,10 @@ class ToDoList {
  */
 
 Hooks.on("renderPlayerList", (playerList, html) => {
+  if (!game.settings.get(ToDoList.ID, ToDoList.SETTINGS.INJECT_BUTTON)) {
+    return;
+  }
+
   const loggedInUserListItem = html.find(`[data-user-id="${game.userId}"]`);
 
   const tooltip = game.i18n.localize("TODO-LIST.button-title");
@@ -190,9 +207,17 @@ class ToDoListConfig extends FormApplication {
         break;
       }
 
-      case "delete": {
-        await ToDoListData.deleteToDo(toDoId);
-        this.render();
+      case 'delete': {
+        const confirmed = await Dialog.confirm({
+          title: game.i18n.localize("TODO-LIST.confirms.deleteConfirm.Title"),
+          content: game.i18n.localize("TODO-LIST.confirms.deleteConfirm.Content")
+        });
+
+        if (confirmed) {
+          await ToDoListData.deleteToDo(toDoId);
+          this.render();
+        }
+
         break;
       }
 
